@@ -1,7 +1,9 @@
 # DocDrift — Specification
 
-**Version:** 1.2 (MVP)
+**Version:** 1.3 (MVP)
 **Target:** Local Python CLI
+
+*1.3: section selection now uses a token budget instead of a fixed section count (Step 2), and the model's context size is set explicitly (Step 3). A fixed "top 5" dropped sections that would have fit, and Ollama's small default context silently truncates long prompts.*
 
 ## 1. Problem
 
@@ -31,6 +33,7 @@ The tool works only on the supplied files. It does not access GitHub or the full
 | `--backend` | `ollama`, `mock` | `ollama` |
 | `--model` | any locally pulled Ollama model | `qwen3:8b` (lighter alternative: `gemma3:4b`) |
 | `--mock-response` | path to a fixture JSON (mock backend only) | — |
+| `--max-context` | largest context window (tokens) the tool may request | `32768` |
 
 Output from the mock backend is labeled `[MOCK MODEL OUTPUT]` in the report.
 
@@ -41,7 +44,7 @@ Output from the mock backend is labeled `[MOCK MODEL OUTPUT]` in the report.
 | Code | Meaning | Example |
 |---|---|---|
 | `0` | Success (a report was produced, even one with stale findings) | Normal run |
-| `1` | Invalid input file | Malformed diff, unreadable README |
+| `1` | Invalid input file | Malformed diff, unreadable README, diff too large for one call |
 | `2` | Bad command-line usage (argparse default, left as is) | `--formatt markdown` |
 | `3` | Model backend unavailable or unusable output | Ollama not running, model not pulled, invalid JSON after retry |
 
@@ -55,9 +58,13 @@ Output from the mock backend is labeled `[MOCK MODEL OUTPUT]` in the report.
 ### Step 2 — Prepare documentation sections (Python)
 - Split the README by Markdown headings. Content before the first heading is its own section.
 - Give each section an ID (`s1`, `s2`, …).
-- **Selection:** if the README has 8 or fewer sections, send all of them. Otherwise rank sections by matches against identifiers and keywords from the changed code, and send the top 5.
+- **Selection by token budget:** estimate tokens as characters ÷ 3 (deliberately conservative). The doc budget is `--max-context` minus the instructions, the diff, and a reserve for the model's answer.
+  - If all sections fit, send all of them.
+  - Otherwise rank sections by matches against identifiers and keywords from the changed code, and add them in rank order until the budget is used up. Sent sections keep document order.
+  - If the instructions and diff alone exceed the budget, exit with code `1` (diff too large for one call).
+- Sections not sent are listed in the report as "not analyzed", so nothing is skipped silently.
 
-Sending all sections in small docs matters: many stale-doc cases share no identifier with the code change (see TC-07).
+Sending everything that fits matters: many stale-doc cases share no identifier with the code change (see TC-07), so keyword ranking is only a fallback for docs too large for one call.
 
 ### Step 3 — Analyze (LLM)
 Send the model:
@@ -66,6 +73,8 @@ Send the model:
 - Instructions to judge each section using only the supplied evidence.
 
 The finding schema (Section 5) is passed to Ollama's structured-output option (the `format` parameter), so the model is forced to return JSON in that exact shape.
+
+The context size (Ollama's `num_ctx` option) is set explicitly to fit the prompt plus the answer reserve, never above `--max-context`. Ollama's default context is small and silently truncates longer prompts.
 
 Diff and doc contents are wrapped in clear delimiters and treated as **untrusted data, not instructions.**
 
@@ -80,7 +89,7 @@ Apply guardrails G1–G5 (Section 6) to every finding. Only Python sets `validat
 
 ### Step 5 — Report (Python)
 The Markdown report contains:
-- Summary of analyzed changes (and ignored files).
+- Summary of analyzed changes (and ignored files), and any sections not analyzed because they didn't fit the budget.
 - **Stale findings:** location, evidence, reason, and validated suggested fix.
 - **Needs human review:** `unsure` findings.
 - **Rejected findings:** with the guardrail and reason for each.
