@@ -14,8 +14,8 @@ Requirements:
 - **[Ollama](https://ollama.com/download)**, only for real-model runs. The mock backend needs nothing.
 
 ```bash
-git clone https://github.com/Pranavvr/DocDrift_Miraclores.git
-cd DocDrift_Miraclores
+git clone https://github.com/Pranavvr/DocDrift_Miraflores.git
+cd DocDrift_Miraflores
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
