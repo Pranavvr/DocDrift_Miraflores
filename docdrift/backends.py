@@ -39,13 +39,13 @@ class OllamaBackend:
         if wanted not in names:
             raise BackendError(f"Model {self.model!r} is not pulled.\n" + SETUP_HELP.format(model=self.model))
 
-    def chat(self, messages: list[dict], schema: dict) -> str:
+    def chat(self, messages: list[dict], schema: dict, num_ctx: int) -> str:
         payload = {
             "model": self.model,
             "messages": messages,
             "stream": False,
             "format": schema,
-            "options": {"temperature": 0},
+            "options": {"temperature": 0, "num_ctx": num_ctx},  # explicit: Ollama's default truncates silently
         }
         try:
             resp = self._request("/api/chat", payload, timeout=self.timeout)
@@ -70,5 +70,5 @@ class MockBackend:
     def check_available(self) -> None:
         pass
 
-    def chat(self, messages: list[dict], schema: dict) -> str:
+    def chat(self, messages: list[dict], schema: dict, num_ctx: int) -> str:
         return self.response

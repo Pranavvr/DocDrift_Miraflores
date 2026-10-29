@@ -3,6 +3,7 @@
 import re
 from dataclasses import dataclass
 
+from docdrift.budget import estimate_tokens
 from docdrift.errors import InputError
 
 HEADING_RE = re.compile(r"^#{1,6}\s+\S")
@@ -12,8 +13,7 @@ STOPWORDS = {
     "if", "else", "elif", "for", "in", "not", "and", "or", "is", "the", "with", "as",
     "raise", "try", "except", "pass", "str", "int", "dict", "list",
 }
-SMALL_DOC_LIMIT = 8
-TOP_K = 5
+SECTION_OVERHEAD = 10  # tokens for the <<<SECTION>>> delimiters around each section
 
 
 @dataclass
@@ -53,18 +53,28 @@ def keywords(code_lines: list[str]) -> set[str]:
     return words
 
 
-def select_sections(sections: list[Section], code_lines: list[str]) -> list[Section]:
-    """Send everything for small docs; otherwise the top 5 by keyword matches."""
-    if len(sections) <= SMALL_DOC_LIMIT:
-        return sections
+def section_tokens(s: Section) -> int:
+    return estimate_tokens(s.text) + SECTION_OVERHEAD
+
+
+def select_sections(sections: list[Section], code_lines: list[str], budget: int) -> tuple[list[Section], list[Section]]:
+    """Return (sent, not_sent). Send everything that fits; otherwise fill the budget by keyword rank."""
+    if sum(section_tokens(s) for s in sections) <= budget:
+        return sections, []
     kw = keywords(code_lines)
 
     def score(s: Section) -> int:
         return sum(1 for w in WORD_RE.findall(s.text.lower()) if w in kw)
 
     ranked = sorted(sections, key=lambda s: -score(s))  # stable: ties keep document order
-    top = ranked[:TOP_K]
-    return sorted(top, key=lambda s: int(s.id[1:]))
+    sent_ids, used = set(), 0
+    for s in ranked:
+        if used + section_tokens(s) <= budget:  # a section too big to fit is skipped, smaller ones still tried
+            sent_ids.add(s.id)
+            used += section_tokens(s)
+    sent = [s for s in sections if s.id in sent_ids]
+    not_sent = [s for s in sections if s.id not in sent_ids]
+    return sent, not_sent
 
 
 def read_sections(path: str) -> list[Section]:

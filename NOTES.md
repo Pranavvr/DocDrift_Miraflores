@@ -10,7 +10,12 @@ limitations / next steps / deferred sections and the AI-use statement.
   "raises `KeyError`". Slightly more lenient than the spec's "quote characters".
 - G5 only looks at explicit tokens. "five" vs "5" isn't caught; an implicit value (e.g. `.get()`
   returning None without the word None in the diff) makes a correct fix fail G5.
-- Section ranking (>8 sections) is plain keyword overlap; no stemming or synonyms.
+- Section selection uses a token budget (spec 1.3): everything is sent when it fits. Token counts are
+  estimated as chars/3, not measured with the model's tokenizer. Only when a README doesn't fit does
+  plain keyword ranking decide what's sent (no stemming or synonyms), so TC-07-style misses are still
+  possible for very large docs; those sections are listed as "not analyzed".
+- num_ctx is sized to the prompt (power of two, 4096..--max-context). Bigger contexts cost RAM and
+  small models read long inputs less reliably, so "fits" doesn't mean "read well".
 - Model is told to skip unrelated sections rather than emit a finding for every section, to keep
   output small and avoid fake evidence for irrelevant sections.
 - Schema wraps the list as {"findings": [...]} (Ollama structured output needs an object at the top);

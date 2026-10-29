@@ -106,7 +106,33 @@ def test_input_files_are_not_modified():
     assert [p.read_bytes() for p in paths] == before
 
 
-@pytest.mark.parametrize("raw", ['{"findings": [{"section_id": "s1"}]}', '{"other": []}', "[1]"])
+def test_diff_too_large_for_one_call_exits_1(tmp_path):
+    added = "".join(f"+value_{n} = {n}  # padding to make the diff large\n" for n in range(400))
+    big = tmp_path / "big.diff"
+    big.write_text(f"--- a/big.py\n+++ b/big.py\n@@ -0,0 +1,400 @@\n{added}")
+    r = run_cli("--diff", str(big), "--docs", "samples/tc01/README.md", "--max-context", "4096",
+                "--backend", "mock", "--mock-response", "tests/fixtures/tc01_stale.json")
+    assert r.returncode == 1
+    assert "too large" in r.stderr
+
+
+def test_sections_that_dont_fit_are_reported_not_analyzed(tmp_path):
+    docs = tmp_path / "README.md"
+    docs.write_text("\n".join(f"# Part {i}\n" + "lorem ipsum " * 150 for i in range(6)))
+    empty = tmp_path / "empty.json"
+    empty.write_text('{"findings": []}')
+    r = run_cli("--diff", "samples/tc01/change.diff", "--docs", str(docs), "--max-context", "4096",
+                "--backend", "mock", "--mock-response", str(empty), "--format", "json")
+    out = json.loads(r.stdout)
+    assert out["sections_not_analyzed"]
+    assert len(out["sections_sent"]) + len(out["sections_not_analyzed"]) == 6
+
+
+def test_max_context_below_minimum_is_usage_error():
+    assert run_cli("--diff", "x", "--docs", "y", "--max-context", "100").returncode == 2
+
+
+@pytest.mark.parametrize("raw",['{"findings": [{"section_id": "s1"}]}', '{"other": []}', "[1]"])
 def test_parse_findings_rejects_bad_shapes(raw):
     with pytest.raises(ValueError):
         parse_findings(raw)

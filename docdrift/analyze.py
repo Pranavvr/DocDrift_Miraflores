@@ -2,6 +2,7 @@
 
 import json
 
+from docdrift.budget import context_size
 from docdrift.errors import BackendError
 from docdrift.prompt import FINDING_SCHEMA, SYSTEM_PROMPT, build_user_prompt
 
@@ -29,12 +30,12 @@ def parse_findings(raw: str) -> list[dict]:
     return data
 
 
-def analyze(backend, diff, sections) -> list[dict]:
+def analyze(backend, diff, sections, max_context: int) -> list[dict]:
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": build_user_prompt(diff, sections)},
     ]
-    raw = backend.chat(messages, FINDING_SCHEMA)
+    raw = backend.chat(messages, FINDING_SCHEMA, context_size(messages, max_context))
     try:
         return parse_findings(raw)
     except ValueError as first_error:
@@ -43,7 +44,7 @@ def analyze(backend, diff, sections) -> list[dict]:
             {"role": "user", "content": f"Your output could not be used: {first_error}. "
                                         'Return only JSON of the form {"findings": [...]}.'},
         ]
-        raw = backend.chat(messages, FINDING_SCHEMA)
+        raw = backend.chat(messages, FINDING_SCHEMA, context_size(messages, max_context))
         try:
             return parse_findings(raw)
         except ValueError as e:

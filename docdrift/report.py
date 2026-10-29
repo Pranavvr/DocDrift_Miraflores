@@ -38,6 +38,8 @@ def render_markdown(ctx: dict) -> str:
             f"- Ignored (non-.py) files: {', '.join(f'`{p}`' for p in ctx['diff'].ignored) or 'none'}",
             f"- Sections sent to model: {len(ctx['sent'])} of {len(ctx['sections'])} "
             f"({', '.join(s.id for s in ctx['sent'])})",
+            f"- Not analyzed (didn't fit the context budget): "
+            f"{', '.join(f'{s.id} ({s.heading})' for s in ctx['not_sent']) or 'none'}",
             f"- Findings: {len(g['stale'])} stale, {len(g['review'])} need review, "
             f"{len(g['accurate'])} still accurate, {len(g['rejected'])} rejected", ""]
 
@@ -96,6 +98,7 @@ def render_json(ctx: dict) -> str:
         "python_files": [f.path for f in ctx["diff"].files],
         "ignored_files": ctx["diff"].ignored,
         "sections_sent": [s.id for s in ctx["sent"]],
+        "sections_not_analyzed": [s.id for s in ctx["not_sent"]],
         "findings": ctx["findings"],
         "summary": {k: len(v) for k, v in g.items()},
     }
