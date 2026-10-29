@@ -1,0 +1,21 @@
+{
+  "attribution": { "commit": "", "pr": "" },
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "Bash(python main.py:*)",
+      "Bash(python3 main.py:*)",
+      "Bash(python3 -m pytest:*)",
+      "Bash(pytest:*)",
+      "Bash(./demo.sh:*)",
+      "Bash(bash demo.sh:*)",
+      "Bash(ollama list:*)",
+      "Bash(ollama run:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}
