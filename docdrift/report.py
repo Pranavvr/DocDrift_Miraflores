@@ -3,6 +3,16 @@
 import json
 
 NOTHING_FOUND = "No documentation affected by this change was found in the supplied file."
+NOTHING_VERIFIED = ("No finding passed validation. The model flagged sections it could not back with "
+                    "evidence; see Rejected findings.")
+
+
+def closing_message(g: dict[str, list[dict]]) -> str | None:
+    if g["stale"] or g["review"]:
+        return None
+    if any(f.get("verdict") in ("stale", "unsure") for f in g["rejected"]):
+        return NOTHING_VERIFIED
+    return NOTHING_FOUND
 
 
 def group(findings: list[dict]) -> dict[str, list[dict]]:
@@ -86,8 +96,8 @@ def render_markdown(ctx: dict) -> str:
     if g["rejected"]:
         out.append("")
 
-    if not g["stale"] and not g["review"]:
-        out += ["---", "", NOTHING_FOUND, ""]
+    if closing_message(g):
+        out += ["---", "", closing_message(g), ""]
     out += ["_Guardrails confirm the evidence exists, not that a fix is semantically correct. "
             "A human makes the final call._"]
     return "\n".join(out) + "\n"
@@ -107,6 +117,6 @@ def render_json(ctx: dict) -> str:
         "findings": ctx["findings"],
         "summary": {k: len(v) for k, v in g.items()},
     }
-    if not g["stale"] and not g["review"]:
-        data["message"] = NOTHING_FOUND
+    if closing_message(g):
+        data["message"] = closing_message(g)
     return json.dumps(data, indent=2) + "\n"

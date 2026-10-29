@@ -33,6 +33,7 @@ def test_tc03_unsupported_value_rejected_by_g5():
     assert f["validation_status"] == "rejected"
     assert f["rejection_reason"].startswith("G5")
     assert out["summary"]["stale"] == 0  # no accepted fix
+    assert out["message"].startswith("No finding passed validation")  # not "no documentation affected"
 
 
 def test_tc04_invalid_diff_exits_1_without_calling_model(monkeypatch, capsys):
