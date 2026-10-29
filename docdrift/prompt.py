@@ -38,12 +38,14 @@ For each finding:
 - verdict: "stale" if the change makes the section's statement wrong; "still_accurate" if the
   section is related but still correct; "unsure" if the answer depends on something not visible
   in the diff (for example runtime overrides, environment variables or other files).
-- diff_evidence: one line copied exactly from the diff (keep its + or - prefix).
-- doc_evidence: the exact sentence or phrase copied from the section, word for word.
+- diff_evidence: one line copied exactly from the diff (keep its + or - prefix). It must come from
+  the diff, never from the README.
+- doc_evidence: the exact sentence or phrase copied from the section, word for word, without the
+  heading line.
 - reason: one sentence explaining the verdict.
 - suggested_text: only for "stale". Replacement text for doc_evidence, in the same style,
   changing only what the diff supports. Use only values and names that appear in the diff or in
-  doc_evidence. Omit it otherwise.
+  doc_evidence. It must differ from doc_evidence. Omit it otherwise.
 
 Return JSON: {"findings": [...]}. Return {"findings": []} if no section is related."""
 

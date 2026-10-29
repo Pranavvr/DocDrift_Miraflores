@@ -142,3 +142,16 @@ def test_parse_findings_accepts_object_or_list():
     f = {"section_id": "s1", "verdict": "stale", "diff_evidence": "a", "doc_evidence": "b", "reason": "c"}
     assert parse_findings(json.dumps({"findings": [f]})) == [f]
     assert parse_findings(json.dumps([f])) == [f]
+
+
+def test_multiline_evidence_stays_on_one_report_line(tmp_path):
+    fixture = tmp_path / "multi.json"
+    fixture.write_text(json.dumps({"findings": [{
+        "section_id": "s3", "verdict": "stale", "diff_evidence": "+        return None",
+        "doc_evidence": "## Error handling\n`get_setting(name)` raises `KeyError` if the setting does not exist.",
+        "reason": "now returns None",
+        "suggested_text": "## Error handling\n`get_setting(name)` returns `None` if the setting does not exist."}]}))
+    r = run_cli("--diff", "samples/tc01/change.diff", "--docs", "samples/tc01/README.md",
+                "--backend", "mock", "--mock-response", str(fixture))
+    assert '- **Doc evidence:** "## Error handling `get_setting(name)` raises' in r.stdout
+    assert "\n## Error handling" not in r.stdout.split("## Stale findings")[1]

@@ -19,6 +19,11 @@ def group(findings: list[dict]) -> dict[str, list[dict]]:
     return groups
 
 
+def _one_line(text: str) -> str:
+    """Model text can span lines (e.g. a heading plus a sentence); keep it inside its bullet."""
+    return " ".join(text.split())
+
+
 def _location(f: dict, headings: dict[str, str]) -> str:
     heading = headings.get(f.get("section_id"), "")
     return f"`{f.get('section_id')}`" + (f" ({heading})" if heading else " (before first heading)")
@@ -48,12 +53,12 @@ def render_markdown(ctx: dict) -> str:
         out += ["None.", ""]
     for f in g["stale"]:
         out += [f"### {_location(f, headings)}", "",
-                f"- **Diff evidence:** `{f['diff_evidence'].strip()}`",
-                f"- **Doc evidence:** \"{f['doc_evidence']}\"",
+                f"- **Diff evidence:** `{_one_line(f['diff_evidence'])}`",
+                f"- **Doc evidence:** \"{_one_line(f['doc_evidence'])}\"",
                 f"- **Reason:** {f['reason']}"]
         if f.get("suggested_text"):
             out += [f"- **Suggested fix** (guardrails passed; review before applying):", "",
-                    f"  > {f['suggested_text']}"]
+                    f"  > {_one_line(f['suggested_text'])}"]
         else:
             out += ["- **Suggested fix:** none provided"]
         out.append("")
@@ -63,7 +68,7 @@ def render_markdown(ctx: dict) -> str:
         out += ["None.", ""]
     for f in g["review"]:
         out += [f"- {_location(f, headings)}: {f['reason']}",
-                f"  - Diff: `{f['diff_evidence'].strip()}` | Doc: \"{f['doc_evidence']}\""]
+                f"  - Diff: `{_one_line(f['diff_evidence'])}` | Doc: \"{_one_line(f['doc_evidence'])}\""]
     if g["review"]:
         out.append("")
 
@@ -76,7 +81,7 @@ def render_markdown(ctx: dict) -> str:
     if not g["rejected"]:
         out += ["None.", ""]
     for f in g["rejected"]:
-        out += [f"- {_location(f, headings)} ({f.get('verdict')}): **{f['rejection_reason']}**",
+        out += [f"- {_location(f, headings)} ({f.get('verdict')}): **{_one_line(f['rejection_reason'])}**",
                 f"  - Model's reason: {f.get('reason', '')}"]
     if g["rejected"]:
         out.append("")

@@ -87,12 +87,17 @@ def test_g3_unsure_discards_suggestion():
 
 # G4
 def test_g4_rejects_ambiguous_evidence():
-    ok, reason = g.check_contained_edit("Set `max_retries`", SECTION)
+    ok, reason = g.check_contained_edit("Set `max_retries`", "Set `MAX_RETRIES`", SECTION)
     assert not ok and reason.startswith("G4")
 
 
-def test_g4_passes_unique_evidence():
-    assert g.check_contained_edit("The client retries 3 times", SECTION)[0]
+def test_g4_rejects_no_op_fix():
+    ok, reason = g.check_contained_edit("The client retries 3 times", "The client  retries 3 times", SECTION)
+    assert not ok and "changes nothing" in reason
+
+
+def test_g4_passes_unique_evidence_with_real_change():
+    assert g.check_contained_edit("The client retries 3 times", "The client retries 5 times", SECTION)[0]
 
 
 # G5

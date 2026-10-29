@@ -70,11 +70,13 @@ def check_verdict(finding: dict) -> tuple[bool, str]:
 
 # --- G4 ---------------------------------------------------------------------
 
-def check_contained_edit(evidence: str, section: Section) -> tuple[bool, str]:
+def check_contained_edit(evidence: str, suggested: str, section: Section) -> tuple[bool, str]:
     count = normalize(section.text).count(normalize(evidence))
-    if count == 1:
-        return True, ""
-    return False, f"G4: doc_evidence occurs {count} times in section {section.id}; replacement is ambiguous"
+    if count != 1:
+        return False, f"G4: doc_evidence occurs {count} times in section {section.id}; replacement is ambiguous"
+    if normalize(suggested) == normalize(evidence):
+        return False, "G4: suggested_text is identical to doc_evidence; the fix changes nothing"
+    return True, ""
 
 
 # --- G5 ---------------------------------------------------------------------
@@ -137,7 +139,7 @@ def validate(finding: dict, sections: list[Section], diff: ParsedDiff) -> dict:
     suggested = (f.get("suggested_text") or "").strip()
     if suggested:
         for ok, reason in (
-            check_contained_edit(f["doc_evidence"], section),
+            check_contained_edit(f["doc_evidence"], suggested, section),
             check_supported_values(suggested, f["doc_evidence"], diff),
         ):
             if not ok:

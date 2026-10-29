@@ -24,6 +24,12 @@ limitations / next steps / deferred sections and the AI-use statement.
 - If the diff contains no .py files, no model call is made and the report says nothing was found.
 
 ## Model behaviour observed
+- 2026-10-29, gemma3:4b, M2 / 8 GB RAM: ~95 s cold, ~60 s warm per run.
+- TC-01 (gemma3:4b): correct stale finding on s3 with a fix that passed. Also a duplicate finding
+  pointing at s1 with s3's text; G2 rejected it. Model included the heading line in doc_evidence.
+- TC-07 (gemma3:4b): the real stale sentence (s2) was found, but the model quoted the README as
+  diff_evidence, so G2 rejected it. It also marked s1 ("Download web pages from scripts.") stale with
+  suggested_text identical to doc_evidence, and that passed: no guardrail catches a no-op fix.
 
 ## Review changes (AI output changed or rejected)
 

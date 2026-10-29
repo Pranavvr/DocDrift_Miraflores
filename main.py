@@ -20,7 +20,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--docs", required=True, help="Markdown README file")
     p.add_argument("--format", choices=["markdown", "json"], default="markdown")
     p.add_argument("--backend", choices=["ollama", "mock"], default="ollama")
-    p.add_argument("--model", default="qwen3:8b", help="locally pulled Ollama model (default: qwen3:8b)")
+    p.add_argument("--model", default="qwen3:4b", help="locally pulled Ollama model (default: qwen3:4b)")
     p.add_argument("--mock-response", help="fixture JSON returned by the mock backend")
     p.add_argument("--max-context", type=int, default=32768,
                    help="largest context window (tokens) to request from the model (default: 32768)")
