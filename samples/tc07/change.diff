@@ -1,0 +1,11 @@
+diff --git a/http_client.py b/http_client.py
+index 7e8f9a0..b1c2d3e 100644
+--- a/http_client.py
++++ b/http_client.py
+@@ -3,5 +3,5 @@ import requests
+ 
+-def fetch(url, timeout=None):
++def fetch(url, timeout=30):
+     """Fetch url and return the response body."""
+     response = requests.get(url, timeout=timeout)
+     return response.text

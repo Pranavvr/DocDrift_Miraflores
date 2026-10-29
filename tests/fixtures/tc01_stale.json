@@ -1,0 +1,7 @@
+{"findings": [
+  {"section_id": "s3", "verdict": "stale",
+   "diff_evidence": "+        return None",
+   "doc_evidence": "`get_setting(name)` raises `KeyError` if the setting does not exist.",
+   "reason": "get_setting now returns None for a missing setting instead of raising KeyError.",
+   "suggested_text": "`get_setting(name)` returns `None` if the setting does not exist."}
+]}

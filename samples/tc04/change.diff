@@ -1,0 +1,2 @@
+I changed the retry logic in client.py so it retries more often.
+Also renamed a few variables. Not a real diff, just notes.

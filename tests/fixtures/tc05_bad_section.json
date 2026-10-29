@@ -1,0 +1,7 @@
+{"findings": [
+  {"section_id": "s9", "verdict": "stale",
+   "diff_evidence": "+MAX_RETRIES = 5",
+   "doc_evidence": "The client retries 3 times",
+   "reason": "The documented retry count differs from the new default.",
+   "suggested_text": "The client retries 5 times"}
+]}

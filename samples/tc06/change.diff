@@ -1,0 +1,13 @@
+diff --git a/config.py b/config.py
+index 2c3d4e5..6f7a8b9 100644
+--- a/config.py
++++ b/config.py
+@@ -1,7 +1,7 @@
+ import os
+ 
+-DEFAULT_LOG_LEVEL = "INFO"
++DEFAULT_LOG_LEVEL = "WARNING"
+ 
+ 
+ def log_level():
+     return os.environ.get("APP_LOG_LEVEL", DEFAULT_LOG_LEVEL)

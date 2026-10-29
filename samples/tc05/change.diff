@@ -1,0 +1,11 @@
+diff --git a/client.py b/client.py
+index 1a2b3c4..5d6e7f8 100644
+--- a/client.py
++++ b/client.py
+@@ -1,5 +1,5 @@
+ import time
+ 
+-MAX_RETRIES = 3
++MAX_RETRIES = 5
+ BACKOFF_SECONDS = 2
+ 

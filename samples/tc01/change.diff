@@ -1,0 +1,13 @@
+diff --git a/settings.py b/settings.py
+index 3b18e51..a1c2f0d 100644
+--- a/settings.py
++++ b/settings.py
+@@ -10,6 +10,8 @@ def load_settings():
+ def get_setting(name):
+     """Return the value of a setting."""
+     settings = load_settings()
++    if name not in settings:
++        return None
+     return settings[name]
+ 
+ 
