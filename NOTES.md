@@ -31,7 +31,7 @@ limitations / next steps / deferred sections and the AI-use statement.
 | qwen3:4b | 6/12 | 9/12 |
 | gemma3:4b | 2/12 (1 timeout) | 3/12 (1 timeout) |
 
-- qwen3:4b: TC-01 and TC-07 3/3 (TC-07 is the no-shared-words case). ~20-35 s/run.
+- qwen3:4b: TC-01 and TC-07 3/3 (TC-07 is the no-shared-words case). ~20-45 s/run (measured 18-47 s).
 - TC-02: both models wrongly said "stale" 6/6 times; guardrails rejected every fix, so the tool
   outcome was right. qwen's rejection came from garbled backticks tripping G5, with a confusing
   reason, so partly luck.

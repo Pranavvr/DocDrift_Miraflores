@@ -14,6 +14,8 @@ Requirements:
 - **[Ollama](https://ollama.com/download)**, only for real-model runs. The mock backend needs nothing.
 
 ```bash
+git clone https://github.com/Pranavvr/DocDrift_Miraclores.git
+cd DocDrift_Miraclores
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
@@ -24,6 +26,8 @@ ollama pull gemma3:4b     # optional, for comparison
 ```
 
 ## Run
+
+No Ollama? `./demo.sh` still runs: it falls back to the labelled mock backend, and `pytest` needs no model. On Windows, use WSL, or run the three commands from `demo.sh` directly.
 
 ```bash
 ./demo.sh                 # representative case, guardrail rejection, invalid input (~30 s)
@@ -111,7 +115,7 @@ Each run is graded twice: is the **model's verdict** right (before guardrails), 
 | **Total** | **6/12 · 9/12** | **2/12 · 3/12** |
 
 What this shows:
-- **qwen3:4b is the better choice,** and that's why it's the default. It solved the hard no-shared-words case (TC-07) every time, in about 20–35 s per run.
+- **qwen3:4b is the better choice,** and that's why it's the default. It solved the hard no-shared-words case (TC-07) every time, in about 20–45 s per run.
 - **Guardrails add real value.** On TC-02 both models wrongly called the README stale in all 6 runs, and every one of those fixes was rejected. gemma3:4b produced mostly unsupported output (no-op fixes, empty evidence, wrong sections), and the guardrails rejected nearly all of it. A weak model ends up unhelpful rather than misleading.
 - **Main weakness: overconfidence on ambiguous changes (TC-06).** qwen3:4b confidently suggests "logs at `WARNING`". The evidence is real and `WARNING` is in the diff, so every guardrail passes, but an environment variable may override the default. Guardrails check evidence, not judgement.
 
@@ -145,7 +149,15 @@ Model notes: `qwen3:8b` (the original default) was replaced by `qwen3:4b` becaus
 
 ## Time spent
 
-See [`TIMELOG.md`](TIMELOG.md). *[Fill in: ideation + spec on 2026-10-28, development + testing + evaluation on 2026-10-29, write-up; total.]*
+**About 3h44m in total**, over two sessions, breaks excluded:
+
+| Block | Time |
+|---|---|
+| Ideation + `SPEC.md` (2026-10-28) | 40 min |
+| Setup, development, testing, evaluation, README (2026-10-29) | 2h10m |
+| Explanation write-up + final check | 54 min |
+
+Details in [`TIMELOG.md`](TIMELOG.md).
 
 ## AI use
 
