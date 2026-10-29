@@ -38,6 +38,11 @@ class OllamaBackend:
         wanted = self.model if ":" in self.model else self.model + ":latest"
         if wanted not in names:
             raise BackendError(f"Model {self.model!r} is not pulled.\n" + SETUP_HELP.format(model=self.model))
+        try:
+            caps = self._request("/api/show", {"model": self.model}).get("capabilities", [])
+        except (urllib.error.URLError, OSError):
+            caps = []
+        self.can_think = "thinking" in caps
 
     def chat(self, messages: list[dict], schema: dict, num_ctx: int) -> str:
         payload = {
@@ -47,6 +52,8 @@ class OllamaBackend:
             "format": schema,
             "options": {"temperature": 0, "num_ctx": num_ctx},  # explicit: Ollama's default truncates silently
         }
+        if getattr(self, "can_think", False):
+            payload["think"] = False  # qwen3's hidden reasoning took ~5 min per run; sending it to gemma3 hangs
         try:
             resp = self._request("/api/chat", payload, timeout=self.timeout)
         except (urllib.error.URLError, OSError) as e:

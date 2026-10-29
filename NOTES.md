@@ -24,6 +24,9 @@ limitations / next steps / deferred sections and the AI-use statement.
 - If the diff contains no .py files, no model call is made and the report says nothing was found.
 
 ## Model behaviour observed
+- qwen3:4b with thinking on: TC-01 correct but 4 min 48 s. With think=false: ~30 s, same result.
+  think=false is sent only to models whose /api/show capabilities include "thinking"; sending it
+  to gemma3:4b made a trivial request hang for 5+ minutes.
 - 2026-10-29, gemma3:4b, M2 / 8 GB RAM: ~95 s cold, ~60 s warm per run.
 - TC-01 (gemma3:4b): correct stale finding on s3 with a fix that passed. Also a duplicate finding
   pointing at s1 with s3's text; G2 rejected it. Model included the heading line in doc_evidence.
