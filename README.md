@@ -162,7 +162,8 @@ Details in [`TIMELOG.md`](TIMELOG.md).
 ## AI use
 
 - **Design (mine):** I identified the problem and wrote `SPEC.md` before any code: the core principle, finding schema, guardrails G1–G5, exit codes, test cases and evaluation plan.
-- **Implementation (AI-assisted):** Claude Code (Anthropic) turned the spec into code and tests, ran the evaluation, and drafted this README, working under standing instructions I set in [`CLAUDE.md`](CLAUDE.md).
+- **Implementation (AI-assisted):** Claude (Anthropic) turned the spec into code and tests, ran the evaluation, and drafted this README, working under standing instructions I set in [`CLAUDE.md`](CLAUDE.md).
+- **Write-up (AI-assisted):** I provided the content; Claude drafted the explanation document from it, and I reviewed and edited the final version.
 - **Direction and review (mine):**
   - I reviewed the code module by module and changed the design where it fell short. I replaced the spec's fixed "top 5 sections" rule with a token budget, because real READMEs exceed that limit.
   - I changed the default model after measuring hardware limits.
