@@ -1,9 +1,11 @@
 # DocDrift — Specification
 
-**Version:** 1.3 (MVP)
+**Version:** 1.4 (MVP)
 **Target:** Local Python CLI
 
 *1.3: section selection now uses a token budget instead of a fixed section count (Step 2), and the model's context size is set explicitly (Step 3). A fixed "top 5" dropped sections that would have fit, and Ollama's small default context silently truncates long prompts.*
+
+*1.4: G4 also rejects a suggestion identical to `doc_evidence` (a no-op fix passed every check in a gemma3:4b run of TC-07). Default model changed from `qwen3:8b` to `qwen3:4b`: the development machine has 8 GB RAM, where an 8B model doesn't run reliably, and a 4B model keeps the comparison with `gemma3:4b` like for like.*
 
 ## 1. Problem
 
@@ -31,7 +33,7 @@ The tool works only on the supplied files. It does not access GitHub or the full
 |---|---|---|
 | `--format` | `markdown`, `json` | `markdown` |
 | `--backend` | `ollama`, `mock` | `ollama` |
-| `--model` | any locally pulled Ollama model | `qwen3:8b` (lighter alternative: `gemma3:4b`) |
+| `--model` | any locally pulled Ollama model | `qwen3:4b` (alternative: `gemma3:4b`) |
 | `--mock-response` | path to a fixture JSON (mock backend only) | — |
 | `--max-context` | largest context window (tokens) the tool may request | `32768` |
 
@@ -127,7 +129,7 @@ Python adds:
 
 **G3 — Fixed verdicts.** Only the three verdicts are valid. For `unsure`, any `suggested_text` is discarded and the finding goes to "Needs human review." (This overlaps with the schema but is kept as a second check, since the mock backend bypasses Ollama's schema.)
 
-**G4 — Contained edits.** `doc_evidence` must occur exactly once in the flagged section, so the replacement applies unambiguously (in memory only). Otherwise reject the suggestion.
+**G4 — Contained edits.** `doc_evidence` must occur exactly once in the flagged section, so the replacement applies unambiguously (in memory only). The suggestion must also differ from `doc_evidence` after normalization; a fix that changes nothing is not a fix. Otherwise reject the suggestion.
 
 **G5 — No unsupported values.** Any number or identifier in `suggested_text` that isn't in `doc_evidence` must appear in an added (`+`) line of the diff. Identifiers are tokens in backticks, snake_case, or CamelCase. Otherwise reject the suggestion.
 *Example:* the diff adds `MAX_RETRIES = 5`; "retries 5 times" passes, "retries 10 times" is rejected.
@@ -161,7 +163,7 @@ Each case lives in `samples/tcNN/` with `change.diff` and `README.md`. Mock fixt
 
 The real model's results vary from run to run, so these are reported honestly rather than asserted as strict pass/fail.
 
-Run the evaluation cases on both `qwen3:8b` and `gemma3:4b` and record both in the results table, so the model choice is backed by results.
+Run the evaluation cases on both `qwen3:4b` and `gemma3:4b` and record both in the results table, so the model choice is backed by results.
 
 ## 8. Out of Scope
 
