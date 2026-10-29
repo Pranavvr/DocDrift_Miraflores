@@ -24,6 +24,27 @@ limitations / next steps / deferred sections and the AI-use statement.
 - If the diff contains no .py files, no model call is made and the report says nothing was found.
 
 ## Model behaviour observed
+
+### Evaluation, 2026-10-29 (3 runs x 4 cases x 2 models, M2 / 8 GB; table in eval/results/summary.md)
+| | Model verdict correct | Tool outcome correct |
+|---|---|---|
+| qwen3:4b | 6/12 | 9/12 |
+| gemma3:4b | 2/12 (1 timeout) | 3/12 (1 timeout) |
+
+- qwen3:4b: TC-01 and TC-07 3/3 (TC-07 is the no-shared-words case). ~20-35 s/run.
+- TC-02: both models wrongly said "stale" 6/6 times; guardrails rejected every fix, so the tool
+  outcome was right. qwen's rejection came from garbled backticks tripping G5, with a confusing
+  reason, so partly luck.
+- TC-06: both models fail. qwen confidently suggests "logs at `WARNING`", which passes every
+  guardrail: evidence is real and WARNING is in the diff. Guardrails can't see that the env-var
+  override makes this uncertain. KNOWN LIMITATION; prompt tweak deferred (revisit if time).
+- gemma3:4b: mostly no-op fixes, empty evidence, wrong sections. Guardrails rejected nearly all
+  of it: never a wrong accepted fix in TC-01/02/07. Weak model + guardrails = unhelpful, not misleading.
+- One gemma run timed out (300 s HTTP timeout) right after switching from qwen; likely the 8 GB
+  machine swapping models. Recorded as ERROR.
+- Grader scores two things separately: the model's verdict on the target section (before
+  guardrails) and what the user sees (after). Expected outcomes are applied mechanically; raw
+  JSON is kept for every run so each grade can be checked by hand.
 - qwen3:4b with thinking on: TC-01 correct but 4 min 48 s. With think=false: ~30 s, same result.
   think=false is sent only to models whose /api/show capabilities include "thinking"; sending it
   to gemma3:4b made a trivial request hang for 5+ minutes.
@@ -37,3 +58,8 @@ limitations / next steps / deferred sections and the AI-use statement.
 ## Review changes (AI output changed or rejected)
 
 ## Next steps to investigate
+- TC-06 / overconfidence: prompt the model to look for overrides (env vars, config files, call-site
+  arguments) before saying "stale"; or a Python check that flags stale findings when the diff
+  context shows `os.environ`/config lookups near the changed value, downgrading them to unsure.
+- G5 backtick parsing breaks on unbalanced backticks; reject malformed suggestions with a clear reason.
+- Larger eval set: real commits from open-source repos, not hand-made samples.

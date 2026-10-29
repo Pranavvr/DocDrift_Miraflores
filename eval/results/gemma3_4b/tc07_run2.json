@@ -1,0 +1,42 @@
+{
+  "mock": false,
+  "model": "gemma3:4b",
+  "diff": "samples/tc07/change.diff",
+  "docs": "samples/tc07/README.md",
+  "python_files": [
+    "http_client.py"
+  ],
+  "ignored_files": [],
+  "sections_sent": [
+    "s1",
+    "s2"
+  ],
+  "sections_not_analyzed": [],
+  "findings": [
+    {
+      "section_id": "s1",
+      "verdict": "stale",
+      "diff_evidence": "- timeout=None",
+      "doc_evidence": "Requests wait as long as the server takes to respond, so slow servers never cause an error.",
+      "reason": "The change modifies the default `timeout` value from None to 30 seconds, which contradicts the statement that requests wait indefinitely for slow servers.",
+      "suggested_text": "Requests wait as long as the server takes to respond, so slow servers never cause an error.",
+      "validation_status": "rejected",
+      "rejection_reason": "G2: doc_evidence 'Requests wait as long as the server takes to respond, so slow servers never cause an error.' not found in section s1"
+    },
+    {
+      "section_id": "s2",
+      "verdict": "still_accurate",
+      "diff_evidence": "+ timeout=30",
+      "doc_evidence": "`fetch(url)` downloads a page and returns its text. Requests wait as long as the server takes to respond, so slow servers never cause an error.",
+      "reason": "The change updates the default timeout value but does not affect the core functionality described in the section.",
+      "validation_status": "not_applicable"
+    }
+  ],
+  "summary": {
+    "stale": 0,
+    "review": 0,
+    "accurate": 1,
+    "rejected": 1
+  },
+  "message": "No documentation affected by this change was found in the supplied file."
+}

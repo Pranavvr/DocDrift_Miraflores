@@ -1,0 +1,45 @@
+{
+  "mock": false,
+  "model": "gemma3:4b",
+  "diff": "samples/tc06/change.diff",
+  "docs": "samples/tc06/README.md",
+  "python_files": [
+    "config.py"
+  ],
+  "ignored_files": [],
+  "sections_sent": [
+    "s1",
+    "s2",
+    "s3"
+  ],
+  "sections_not_analyzed": [],
+  "findings": [
+    {
+      "section_id": "s1",
+      "verdict": "stale",
+      "diff_evidence": "+DEFAULT_LOG_LEVEL = \"WARNING\"",
+      "doc_evidence": "The deployed service logs at `INFO` level.",
+      "reason": "The default log level has changed from 'INFO' to 'WARNING', so the statement about logging at INFO level is now incorrect.",
+      "suggested_text": "The deployed service logs at `WARNING` level.",
+      "validation_status": "rejected",
+      "rejection_reason": "G2: doc_evidence 'The deployed service logs at `INFO` level.' not found in section s1"
+    },
+    {
+      "section_id": "s2",
+      "verdict": "stale",
+      "diff_evidence": "+DEFAULT_LOG_LEVEL = \"WARNING\"",
+      "doc_evidence": "Operators can change this with the\n`APP_LOG_LEVEL` environment variable.",
+      "reason": "The default log level is now 'WARNING', so the reference to `APP_LOG_LEVEL` needs updating.",
+      "suggested_text": "Operators can change this with the\n`APP_LOG_LEVEL` environment variable.",
+      "validation_status": "rejected",
+      "rejection_reason": "G4: suggested_text is identical to doc_evidence; the fix changes nothing"
+    }
+  ],
+  "summary": {
+    "stale": 0,
+    "review": 0,
+    "accurate": 0,
+    "rejected": 2
+  },
+  "message": "No documentation affected by this change was found in the supplied file."
+}

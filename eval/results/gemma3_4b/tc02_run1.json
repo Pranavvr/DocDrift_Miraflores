@@ -1,0 +1,44 @@
+{
+  "mock": false,
+  "model": "gemma3:4b",
+  "diff": "samples/tc02/change.diff",
+  "docs": "samples/tc02/README.md",
+  "python_files": [
+    "greeting.py"
+  ],
+  "ignored_files": [],
+  "sections_sent": [
+    "s1",
+    "s2"
+  ],
+  "sections_not_analyzed": [],
+  "findings": [
+    {
+      "section_id": "s1",
+      "verdict": "stale",
+      "diff_evidence": "-    return f\"Hello, {name}!\"",
+      "doc_evidence": "    return f\"Hello, {name}!\"",
+      "reason": "The change introduces a default punctuation mark ('!') which was not present in the original documentation.",
+      "suggested_text": "    return f\"Hello, {name}{punctuation}\"",
+      "validation_status": "rejected",
+      "rejection_reason": "G2: doc_evidence '    return f\"Hello, {name}!\"' not found in section s1"
+    },
+    {
+      "section_id": "s2",
+      "verdict": "stale",
+      "diff_evidence": "+def greet(name, punctuation=\"!\"):",
+      "doc_evidence": "greet` takes a name and returns a greeting string such as `Hello, Ada!`. ",
+      "reason": "The change introduces the `punctuation` parameter to the `greet` function, which was not present in the original documentation.",
+      "suggested_text": "greet` takes a name and returns a greeting string such as `Hello, Ada!`.",
+      "validation_status": "rejected",
+      "rejection_reason": "G4: suggested_text is identical to doc_evidence; the fix changes nothing"
+    }
+  ],
+  "summary": {
+    "stale": 0,
+    "review": 0,
+    "accurate": 0,
+    "rejected": 2
+  },
+  "message": "No documentation affected by this change was found in the supplied file."
+}

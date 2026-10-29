@@ -1,0 +1,66 @@
+{
+  "mock": false,
+  "model": "gemma3:4b",
+  "diff": "samples/tc01/change.diff",
+  "docs": "samples/tc01/README.md",
+  "python_files": [
+    "settings.py"
+  ],
+  "ignored_files": [],
+  "sections_sent": [
+    "s1",
+    "s2",
+    "s3",
+    "s4"
+  ],
+  "sections_not_analyzed": [],
+  "findings": [
+    {
+      "section_id": "s1",
+      "verdict": "stale",
+      "diff_evidence": "+    if name not in settings:",
+      "doc_evidence": "A tiny settings loader for small Python services.",
+      "reason": "The code change introduces a check for missing keys, which contradicts the original description that `get_setting` always returns a value or `None`.",
+      "suggested_text": "A tiny settings loader for small Python services.",
+      "validation_status": "rejected",
+      "rejection_reason": "G4: suggested_text is identical to doc_evidence; the fix changes nothing"
+    },
+    {
+      "section_id": "s2",
+      "verdict": "still_accurate",
+      "diff_evidence": "",
+      "doc_evidence": "```python\nfrom settings import get_setting\n\nport = get_setting(\"port\")\n```",
+      "reason": "The code change does not affect the usage example, so it remains accurate.",
+      "suggested_text": "",
+      "validation_status": "rejected",
+      "rejection_reason": "G2: diff_evidence is empty"
+    },
+    {
+      "section_id": "s3",
+      "verdict": "stale",
+      "diff_evidence": "+    if name not in settings:",
+      "doc_evidence": "`get_setting(name)` raises `KeyError` if the setting does not exist.",
+      "reason": "The code change introduces a check for missing keys, which contradicts the original description that `get_setting` raises `KeyError` only when the key is missing.",
+      "suggested_text": "`get_setting(name)` raises `KeyError` if the setting does not exist.",
+      "validation_status": "rejected",
+      "rejection_reason": "G4: suggested_text is identical to doc_evidence; the fix changes nothing"
+    },
+    {
+      "section_id": "s4",
+      "verdict": "stale",
+      "diff_evidence": "",
+      "doc_evidence": "`list_settings()` returns the names of all settings.",
+      "reason": "The code change introduces a check for missing keys, which contradicts the original description that `list_settings` exists and returns setting names.",
+      "suggested_text": "",
+      "validation_status": "rejected",
+      "rejection_reason": "G2: diff_evidence is empty"
+    }
+  ],
+  "summary": {
+    "stale": 0,
+    "review": 0,
+    "accurate": 0,
+    "rejected": 4
+  },
+  "message": "No documentation affected by this change was found in the supplied file."
+}

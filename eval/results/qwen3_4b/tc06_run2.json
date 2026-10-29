@@ -1,0 +1,33 @@
+{
+  "mock": false,
+  "model": "qwen3:4b",
+  "diff": "samples/tc06/change.diff",
+  "docs": "samples/tc06/README.md",
+  "python_files": [
+    "config.py"
+  ],
+  "ignored_files": [],
+  "sections_sent": [
+    "s1",
+    "s2",
+    "s3"
+  ],
+  "sections_not_analyzed": [],
+  "findings": [
+    {
+      "section_id": "s2",
+      "verdict": "stale",
+      "diff_evidence": "+DEFAULT_LOG_LEVEL = \"WARNING\"",
+      "doc_evidence": "The deployed service logs at `INFO` level.",
+      "reason": "The diff changes the default log level from INFO to WARNING, so the statement that the service logs at INFO level is now incorrect.",
+      "suggested_text": "The deployed service logs at `WARNING` level.",
+      "validation_status": "passed"
+    }
+  ],
+  "summary": {
+    "stale": 1,
+    "review": 0,
+    "accurate": 0,
+    "rejected": 0
+  }
+}

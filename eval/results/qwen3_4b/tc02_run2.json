@@ -1,0 +1,34 @@
+{
+  "mock": false,
+  "model": "qwen3:4b",
+  "diff": "samples/tc02/change.diff",
+  "docs": "samples/tc02/README.md",
+  "python_files": [
+    "greeting.py"
+  ],
+  "ignored_files": [],
+  "sections_sent": [
+    "s1",
+    "s2"
+  ],
+  "sections_not_analyzed": [],
+  "findings": [
+    {
+      "section_id": "s2",
+      "verdict": "stale",
+      "diff_evidence": "+    return f\"Hello, {name}{punctuation}\"",
+      "doc_evidence": "`greet` takes a name and returns a greeting string such as `Hello, Ada!`.",
+      "reason": "The diff shows that `greet` now takes an optional `punctuation` parameter with a default value of `!`, so the example and description in the README are outdated.",
+      "suggested_text": "`greet` takes a name and an optional `p`unctuation` parameter (defaulting to `!`) and returns a greeting string such as `Hello, Ada!`.",
+      "validation_status": "rejected",
+      "rejection_reason": "G5: ') and returns a greeting string such as' in suggested_text is not in doc_evidence or any added diff line"
+    }
+  ],
+  "summary": {
+    "stale": 0,
+    "review": 0,
+    "accurate": 0,
+    "rejected": 1
+  },
+  "message": "No documentation affected by this change was found in the supplied file."
+}
